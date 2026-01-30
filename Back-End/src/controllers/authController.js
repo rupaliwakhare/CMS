@@ -10,8 +10,8 @@ const register = async (req,res)=>{
         const existEmail = await userModel.findOne({email});
         if(existEmail) return res.status(400).json({message:"Email is already register"});
 
-        const existMobile = await userModel.findOne({mobile});
-        if(existMobile) return res.status(400).json({message: "Mobile number is already registered"});
+        // const existMobile = await userModel.findOne({mobile});
+        // if(existMobile) return res.status(400).json({message: "Mobile number is already registered"});
 
         const hashPassword = await bcrypt.hash(password,10)
 
