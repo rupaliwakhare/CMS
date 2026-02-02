@@ -24,6 +24,7 @@ import Course from "../models/courseModel.js";
       thumbnail: req.body.thumbnail,
       instructor: req.user.id,
       status: req.body.status || "Active",
+      thumbnail: req.file ? req.file.path : undefined,
     });
 
     await newCourse.save();
@@ -39,9 +40,35 @@ import Course from "../models/courseModel.js";
 // GET ALL COURSE
  const getCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate("instructor", "name email");
+    const {search , page = 1, limit = 10, minPrice, maxPrice} = req.query;
+    const query = {status:"Active"};
 
-    res.status(200).json(courses);
+    if(search){
+        query.title = {$regex: search, $options:"i"}
+    }
+
+    
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = minPrice;
+      if (maxPrice) query.price.$lte = maxPrice;
+    }
+
+
+    const total = await Course.countDocuments(query);
+
+    const courses = await Course.find(query)
+    .populate("instructor", "name email")
+    .skip((page-1)*limit)
+    .limit(Number(limit));
+    
+
+    res.status(200).json({
+        totalCourses:total,
+        page:Number(page),
+        limit:Number(limit),
+        courses,
+  });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

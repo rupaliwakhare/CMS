@@ -7,12 +7,13 @@ import {
   deleteUser,
 } from "../controllers/authController.js";
 import protect from "../middleware/authMiddleware.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
-router.post("/register", register);
+router.post("/register", upload.single("profileImage"), register);
 router.post("/login", login);
-router.get("/:id", protect, getUserById);
+router.get("/:id",upload.single("profileImage"), protect, getUserById);
 router.put("/update/:id", protect, updateUser);
 router.delete("/delete/:id", protect, deleteUser);
 

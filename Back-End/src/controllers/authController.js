@@ -3,6 +3,7 @@ import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+
 const register = async (req,res)=>{
     try {
         const {name,email,password,role,profileImage,bio,isActive} = req.body;
@@ -20,11 +21,11 @@ const register = async (req,res)=>{
           email,
           password:hashPassword,
           role,
-          profileImage,
+          profileImage:req.file ? req.file.path : undefined,
           bio,
-          isActive,
+          isActive: isActive !== undefined ? isActive : true,
         });
-        res.status(201).send({message:"User created",user})
+        res.status(201).send({message:"User created", user})
     } catch (error) {
         res.status(500).json({error:error.message});
     }
@@ -88,6 +89,9 @@ const updateUser = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
+
+    if (req.file) user.profileImage = req.file.path;
+    
     res.status(200).json({ success: true, message: "User updated", user });
   } catch (error) {
     res.status(500).json({
