@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/connectDB.js";
 import authRoutes from "./routes/authRoutes.js"
+import courseRoutes from "./routes/courseRoutes.js"
 
 dotenv.config();
 const app = express()
@@ -17,6 +18,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use("/api/user",authRoutes)
+app.use("/api/course",courseRoutes)
 
 app.listen(PORT,()=>{
     console.log(`server is running on http://localhost:${PORT}`);
