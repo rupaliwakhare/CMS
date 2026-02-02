@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
-export const protect = async(req,res,next)=>{
+const protect = async(req,res,next)=>{
     try {
         const token = req.headers.authorization;
         if(!token) return res.status(401).send("Token not provided");
@@ -16,3 +16,5 @@ export const protect = async(req,res,next)=>{
         res.status(401).send("Invalid token")
     }
 }
+
+export default protect;
