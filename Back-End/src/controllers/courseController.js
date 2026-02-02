@@ -1,27 +1,72 @@
 import Course from "../models/courseModel.js";
 
-export const createCourse = async (req, res) => {
+
+// CREATE COURSE
+ const createCourse = async (req, res) => {
   try {
-    const course = await Course.create({
-      ...req.body,
+
+
+      const existingCourse = await Course.findOne({
+        title: req.body.title,
+      });
+
+      if (existingCourse) {
+        return res.status(400).json({
+          message: "Course already exists",
+        });
+      }
+
+    const newCourse = new Course({
+      title: req.body.title,
+      discription: req.body.discription,
+      price: req.body.price,
+      duration: req.body.duration,
+      thumbnail: req.body.thumbnail,
       instructor: req.user.id,
+      status: req.body.status || "Active",
     });
-    res.status(201).json(course);
+
+    await newCourse.save();
+
+    res.status(201).json({
+      message: "Course created successfully",
+      course: newCourse,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
-
-export const getCourses = async (req, res) => {
+// GET ALL COURSE
+ const getCourses = async (req, res) => {
   try {
     const courses = await Course.find().populate("instructor", "name email");
-    res.json(courses);
+
+    res.status(200).json(courses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const updateCourse = async (req, res) => {
+// GET SINGLE COURSE
+ const getSingleCourse = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id).populate(
+      "instructor",
+      "name email",
+    );
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    res.status(400).json({ message: "Invalid course ID" });
+  }
+};
+ 
+// UPDATE COURSE
+ const updateCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
 
@@ -29,24 +74,34 @@ export const updateCourse = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    // Instructor ownership check
     if (
       req.user.role === "instructor" &&
       course.instructor.toString() !== req.user.id
     ) {
-      return res.status(403).json({ message: "Not allowed" });
+      return res.status(403).json({ message: "You cannot update this course" });
     }
 
-    Object.assign(course, req.body);
+    course.title = req.body.title || course.title;
+    course.discription = req.body.discription || course.discription;
+    course.price = req.body.price || course.price;
+    course.duration = req.body.duration || course.duration;
+    course.thumbnail = req.body.thumbnail || course.thumbnail;
+    course.status = req.body.status || course.status;
+
     await course.save();
 
-    res.json(course);
+    res.status(200).json({
+      message: "Course updated successfully",
+      course,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-export const deleteCourse = async (req, res) => {
+// DELETE COURSE
+
+const deleteCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
 
@@ -55,8 +110,17 @@ export const deleteCourse = async (req, res) => {
     }
 
     await course.deleteOne();
-    res.json({ message: "Course deleted" });
+
+    res.status(200).json({ message: "Course deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+export {
+  createCourse,
+  getCourses,
+  getSingleCourse,
+  updateCourse,
+  deleteCourse,
 };
