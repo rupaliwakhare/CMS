@@ -128,6 +128,22 @@ import Course from "../models/courseModel.js";
 
 // DELETE COURSE
 
+// const deleteCourse = async (req, res) => {
+//   try {
+//     const course = await Course.findById(req.params.id);
+
+//     if (!course) {
+//       return res.status(404).json({ message: "Course not found" });
+//     }
+
+//     await course.deleteOne();
+
+//     res.status(200).json({ message: "Course deleted successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 const deleteCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -136,9 +152,10 @@ const deleteCourse = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    await course.deleteOne();
+    course.status = "Inactive";
+    await course.save();
 
-    res.status(200).json({ message: "Course deleted successfully" });
+    res.json({ message: "Course marked as inactive" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
