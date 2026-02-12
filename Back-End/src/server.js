@@ -6,6 +6,7 @@ import courseRoutes from "./routes/courseRoutes.js"
 import enrollementRoutes from "./routes/enrollmentRoutes.js"
 import errorHandler from "./middleware/errorHandller.js";
 import reviewRouter from "./routes/reviewRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 const app = express()
@@ -25,6 +26,7 @@ app.use("/api/auth",authRoutes)
 app.use("/api/courses",courseRoutes)
 app.use("/api/enroll",enrollementRoutes);
 app.use("/api/reviews", reviewRouter);
+app.use("/api/admin", adminRoutes);
 
 
 app.use(errorHandler);
